@@ -13,7 +13,8 @@ In compliance with the DHS Program Authorization Letter (Ref: SPA_225470), raw m
 Malaria_Insights_Hub/
 ├── data/               # Empty directory for the KEPR81FL.DTA dataset (gitignored)
 ├── docs/               
-│   ├── Malaria_Report_Publication.qmd  # Quarto publication report
+│   ├── Malaria_Report_Publication.pdf  # Final rendered publication report
+│   ├── Malaria_Report_Publication.qmd  # Quarto publication report source
 │   ├── references.bib                  # BibTeX references for the report
 │   └── AuthLetter_SPA_225470.pdf       # DHS Authorization Letter
 ├── src/                
@@ -28,7 +29,7 @@ Malaria_Insights_Hub/
 ## Features
 
 - **Epidemiological Dashboard (`src/app.R`):** An R Shiny web application providing sub-national, interactive filtering of malaria indicators. 
-- **Publication Report (`docs/Malaria_Report_Publication.qmd`):** An academic-style Quarto document presenting the findings, structured with an abstract, literature review, methodology, and results (including heatmaps, regression analysis, and gap analyses).
+- **Publication Report (`docs/Malaria_Report_Publication.pdf`):** An academic-style report presenting the findings, structured with an abstract, literature review, methodology, and results (including heatmaps, regression analysis, and gap analyses).
 - **Small-Cell Suppression:** Both the dashboard and the report dynamically suppress estimates based on unweighted counts (n < 25) to protect privacy.
 - **DHS Weighting:** All point estimates appropriately apply DHS complex survey weights (`hv005/1000000`).
 
@@ -43,8 +44,8 @@ Malaria_Insights_Hub/
 
 1. Clone this repository:
    ```bash
-   git clone https://github.com/yourusername/Malaria_Insights_Hub.git
-   cd Malaria_Insights_Hub
+   git clone https://github.com/TrushalPrevail/Malaria-Project.git
+   cd Malaria-Project
    ```
 
 2. Install the required R packages. Run the following in your R console:
@@ -52,10 +53,14 @@ Malaria_Insights_Hub/
    install.packages(c("shiny", "bslib", "dplyr", "tidyr", "stringr", "haven", "ggplot2", "plotly"))
    ```
 
-3. Obtain the dataset:
-   - Register at the [DHS Program](https://dhsprogram.com/).
-   - Request access to the Kenya 2020 MIS dataset.
-   - Download the Stata dataset (`KEPR81FL.DTA`) and place it inside the `data/` folder.
+3. **Obtain the dataset (Crucial Step):**
+   The raw dataset is restricted. To reproduce this analysis, you must request it directly from the DHS Program:
+   - Go to the [DHS Program Website](https://dhsprogram.com/data/new-user-registration.cfm) and register for a new user account.
+   - Once registered, log in and create a new project request. Describe your research/study purpose.
+   - Request access to the **Kenya 2020 Malaria Indicator Survey (MIS)** datasets.
+   - Wait for approval (usually takes 1–3 business days).
+   - Once approved, download the **Stata (.DTA) format** of the **Person Recode** dataset.
+   - Extract the downloaded ZIP file, locate `KEPR81FL.DTA`, and place it exactly inside the `data/` folder of this repository.
 
 ### Running the Dashboard
 Navigate to the `src/` directory in RStudio, open `app.R`, and click **Run App**, or execute:
