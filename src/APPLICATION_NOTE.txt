@@ -1,0 +1,12 @@
+The app.R will not run since the Dataset is not shared as per DHS's Authority 
+(check the _report folder for Authorization letter stating data confidentiality)
+
+use this link to access the live version of dashboard
+
+https://trushalhirani.shinyapps.io/MalariaProject/
+
+if the link is not working please contact me:
+
+Trushal Hirani
+hiranitrushal@yahoo.com
+SDS6/49809/2026

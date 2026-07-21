@@ -1,0 +1,579 @@
+---
+title: "Malaria Prevalence, Intervention Coverage and Socio-Economic Determinants in Kenya: An Interactive Surveillance Dashboard Using the 2020 Malaria Indicator Survey"
+author: "Trushal Hirani | SDS6/49809/2026"
+date: "2026-07-21"
+format:
+  pdf:
+    documentclass: article
+    toc: true
+    toc-depth: 3
+    number-sections: true
+    geometry:
+      - margin=1in
+      - top=0.75in
+    cite-method: natbib
+bibliography: references.bib
+abstract: |
+  **Background:** Malaria remains a leading cause of morbidity and mortality in Kenya, with heterogeneous transmission across endemicity zones. Timely, sub-national surveillance is essential for guiding targeted interventions, yet routine data are rarely presented in an accessible, interactive format for decision-makers.
+
+  **Objective:** To develop and validate an interactive Shiny dashboard that synthesises the 2020 Kenya Malaria Indicator Survey (MIS) micro-data into actionable epidemiological indicators — including parasite prevalence by microscopy, insecticide-treated net (ITN) coverage and usage, diagnostic concordance, and socio-economic risk determinants — while adhering to data-governance and ethical-use requirements.
+
+  **Methods:** We analysed person-level records (N = 10,631 with valid microscopy) from the 2020 Kenya MIS, a nationally representative two-stage cluster survey. All estimates apply DHS sampling weights (hv005/10⁶). Prevalence was computed as a weighted proportion with the composite microscopy indicator (hml32, hml32a–d). ITN access and usage gaps were quantified among net owners. A logistic regression model assessed household-level predictors of infection using analysis of deviance. Small cells (n < 25 unweighted) were suppressed to protect confidentiality.
+
+  **Results:** National weighted malaria prevalence was 5.6% (microscopy). The Lake Endemic zone carried the highest burden (Busia 38.8%, Bungoma 29.1%), while Highland and Central zones recorded 0%. ITN usage among net owners reached only 57%, revealing a behavioural gap beyond supply. Household roof material, water source, and sanitation type were the strongest socio-economic predictors of infection (p < 0.001, deviance test). A notable anomaly — Homa Bay at 3.7% despite Lake Endemic classification — suggests effectiveness of localised Indoor Residual Spraying programmes.
+
+  **Conclusion:** The Malaria Insights Hub demonstrates that interactive, weighted, survey-based dashboards can reveal sub-national heterogeneity invisible in aggregate reports. Findings support prioritising integrated vector management in high-burden lake counties, and behavioural change communication to close the ITN ownership-usage gap.
+
+  **Keywords:** malaria surveillance, Kenya, MIS 2020, Shiny dashboard, ITN coverage, diagnostic concordance, health equity
+---
+
+\newpage
+
+# Introduction
+
+## Public Health Context
+
+Malaria remains one of the most significant public health challenges globally, responsible for an estimated 249 million cases and 608,000 deaths in 2022, with over 90% of the burden concentrated in sub-Saharan Africa [@who2023]. In Kenya, malaria accounts for approximately 13–15% of outpatient visits, with transmission intensity varying dramatically across the country's distinct ecological and endemicity zones [@dnmp2020].
+
+The **Division of National Malaria Programme (DNMP)**, in collaboration with the **Kenya National Bureau of Statistics (KNBS)** and **ICF International**, conducts periodic Malaria Indicator Surveys (MIS) to monitor intervention coverage, parasitaemia prevalence, and diagnostic capacity at the sub-national level. The 2020 MIS provides the most recent nationally representative snapshot of these indicators.
+
+## Health Decision and Audience
+
+This report and its accompanying interactive dashboard are designed to serve:
+
+-   **Primary audience:** County-level malaria programme managers and DNMP policy analysts who allocate vector-control resources.
+-   **Secondary audience:** Researchers, academic institutions (under teaching-use agreement), and development partners (WHO, PMI).
+
+**Measurable objectives:**
+
+1.  Quantify weighted malaria prevalence by county and endemicity zone with appropriate denominators and uncertainty.
+2.  Measure the ITN ownership-to-usage gap to distinguish supply from behavioural barriers.
+3.  Identify the strongest household-level socio-economic predictors of malaria infection.
+4.  Provide an interactive surveillance tool that enables geographic and demographic filtering.
+
+## Rationale
+
+While the published MIS report [@dnmp2020] presents aggregate national and zonal statistics, it does not provide an interactive, filterable interface for sub-national exploration. This project bridges that gap by operationalising the micro-data into a reproducible R Shiny application, enabling decision-makers to drill into county-level patterns, compare diagnostic methods, and explore risk determinants — all within a framework that respects data confidentiality and governance requirements.
+
+**Live Dashboard:** [https://trushalhirani.shinyapps.io/MalariaProject/](https://trushalhirani.shinyapps.io/MalariaProject/)
+
+------------------------------------------------------------------------
+
+# Literature Review
+
+## Malaria Epidemiology in Kenya
+
+Kenya's malaria epidemiology is characterised by marked spatial heterogeneity driven by altitude, rainfall, and proximity to large water bodies. The country is classified into four epidemiological zones: **Lake Endemic** (perennial high transmission around Lake Victoria), **Coast Endemic** (seasonal transmission along the Indian Ocean littoral), **Highland Epidemic-Prone** (unstable transmission above 1,500m), and **Low-Risk/Semi-Arid** zones including Nairobi and north-eastern counties [@snow2015; @dnmp2020].
+
+Previous MIS surveys (2010, 2015) documented a declining national prevalence trend from 8% to 5%, attributed to scaled-up vector control, improved case management, and expanded diagnostic capacity [@pmbok2018]. However, the Lake Endemic zone consistently accounts for over 70% of national cases, with prevalence exceeding 25% in western counties such as Busia and Bungoma.
+
+## Vector Control: ITN Coverage and the Access–Use Gap
+
+Insecticide-treated nets (ITNs) remain the cornerstone of malaria vector control in sub-Saharan Africa. The WHO recommends universal coverage defined as one ITN per two household members [@who2023]. Mass distribution campaigns in Kenya have achieved household ownership rates exceeding 70% in endemic zones; however, a persistent "access–use gap" has been documented where 20–40% of individuals in households with nets do not sleep under them [@koenker2018; @berthe2014].
+
+This gap is attributed to discomfort (heat), perceived low risk, net condition, and seasonal variation in use. Understanding the magnitude and geographic distribution of this gap is essential for distinguishing supply-side interventions (more nets) from demand-side strategies (behavioural communication).
+
+## Diagnostic Methods: Microscopy versus RDTs
+
+Malaria diagnosis relies on two principal methods. **Light microscopy** is the gold standard, enabling species identification and parasite density quantification but requiring trained microscopists and laboratory infrastructure. **Rapid Diagnostic Tests (RDTs)** detect parasite antigens and are suitable for field deployment but can produce false positives (due to persistent HRP2 antigen after parasite clearance) and false negatives (at low parasite densities) [@berry2020].
+
+The MIS 2020 dataset uniquely contains paired microscopy and RDT results for the same individuals, enabling direct concordance analysis — a comparison rarely available outside controlled research settings.
+
+## Socio-Economic Determinants
+
+The relationship between household socio-economic status and malaria risk is well-established. Housing quality (roof, wall, and floor materials), access to electricity, water source, and sanitation facilities are both proxies for wealth and direct determinants of vector exposure [@tusting2017]. Improved housing with sealed eaves and screened windows can reduce malaria transmission by 40–60%, independent of ITN use.
+
+## Gap in the Literature
+
+While the published MIS 2020 report provides descriptive national statistics, no publicly available interactive tool enables: (a) county-level filtering with real-time weighted recalculation, (b) paired RDT–microscopy concordance exploration, or (c) integrated socio-economic risk modelling with visual output. This project addresses that gap.
+
+------------------------------------------------------------------------
+
+# Data Governance and Ethics
+
+## Data Permission and Access
+
+The micro-data were obtained from the **DHS Program** (ICF International) under a registered data-use agreement. An official **Authorization Letter** (Ref: SPA_225470; see Appendix A) governs the terms of use.
+
+| Requirement | Compliance |
+|---|---|
+| Registered user account | Yes — DHS Program account #225470 |
+| Intended use declared | Academic coursework and public health dashboard |
+| Raw data redistribution | **Prohibited** — only aggregated/anonymised outputs shared |
+| Ethics approval | Covered under DHS institutional IRB (ICF IRB #FWA00000845) |
+| Data retention | Retained on secure local machine; deleted upon project completion |
+| Teaching-use agreement | Dashboard outputs may be used for instruction; raw data may not be shared |
+
+## Confidentiality and Small-Cell Suppression
+
+All indicators are presented as **weighted aggregates** — no individual-level records are displayed or downloadable. County × zone × demographic cross-tabulations with **fewer than 25 unweighted observations** are suppressed and displayed as "—" in the dashboard. The raw dataset (`KEPR81FL.DTA`) is excluded from all public repositories.
+
+## Data Provenance
+
+| Attribute | Detail |
+|---|---|
+| **Source** | DHS Program / ICF International |
+| **Survey** | Kenya Malaria Indicator Survey 2020 |
+| **Implementing agencies** | DNMP, KNBS |
+| **Fieldwork dates** | February – July 2020 |
+| **Sampling frame** | 2019 Kenya Population and Housing Census |
+| **Sample design** | Two-stage stratified cluster (298 clusters, 5,950 households) |
+| **Target population** | Children age 0–14 and women age 15–49 in selected households |
+| **Dataset version** | KEPR81FL.DTA (Person Recode) |
+| **Access date** | 17 January 2026 |
+
+------------------------------------------------------------------------
+
+# Methodology
+
+## Study Design and Population
+
+This is a secondary analysis of the **2020 Kenya MIS**, a cross-sectional, nationally representative household survey employing a **two-stage stratified cluster sampling design**: 298 enumeration areas selected with probability proportional to size, then 20 households systematically sampled per cluster.
+
+The analytic population comprises all persons with valid laboratory microscopy results (`hml32` not missing and not "sample not found in lab database"), yielding **N = 10,631 observations**.
+
+## Survey Weighting
+
+All estimates apply DHS sampling weights to produce nationally representative statistics:
+
+$$ w_i = \frac{\texttt{hv005}_i}{1{,}000{,}000} $$
+
+Weights adjust for unequal selection probabilities and non-response. Unweighted counts are reported alongside weighted estimates where relevant.
+
+## Variable Definitions
+
+| Domain | Variables | Description |
+|---|---|---|
+| Geography | hv024, shcounty, shzone, hv025 | Region, county, endemicity zone, urban/rural |
+| Demographics | hv105, hv104, hv270 | Age, sex, wealth quintile |
+| Malaria diagnosis | hml32, hml32a–d, hml35 | Microscopy (overall + species), RDT |
+| Vector control | hml10, hml12, hv227 | ITN use, net sleep behaviour, net ownership |
+| Household features | hv213–hv215, hv201, hv205–hv207 | Floor/wall/roof, water, sanitation, electricity, radio |
+
+### Derived Indicators
+
+-   **Composite malaria positivity** (`Malaria_Pos`): Coded 1 if any of hml32 or hml32a–d indicates "Positive"; 0 otherwise.
+-   **ITN usage** (`Slept_ITN`): Binary indicator from hml12 (slept under insecticide-treated net).
+-   **Net ownership** (`Has_Net`): Binary indicator from hv227 (household owns any mosquito net).
+
+## Statistical Analysis
+
+**Prevalence estimation:** Weighted proportions with the formula:
+
+$$ \hat{p} = \frac{\sum_i \text{Malaria\_Pos}_i \times w_i}{\sum_i w_i} \times 100 $$
+
+Applied identically for ITN usage and all stratified analyses (by zone, county, wealth quintile, residence).
+
+**Logistic regression:** A generalised linear model (binomial family) predicted malaria positivity from household features (floor, wall, roof materials; water source; sanitation; electricity; radio ownership). Feature importance was assessed via sequential analysis of deviance (Type I ANOVA, Chi-squared test).
+
+**Diagnostic concordance:** Cross-tabulation of microscopy vs. RDT results classifying True Positives, True Negatives, and discordant cases.
+
+**Software:** R (≥4.3.0), Shiny + bslib, dplyr, tidyr, ggplot2, plotly, haven. All code is modular and reproducible (see Appendix B).
+
+```{r setup, include=FALSE}
+library(stringr)
+library(tibble)
+library(tidyverse)
+library(haven)
+
+target_vars <- c(
+  "hv024", "shcounty", "shzone", "hv025", "hv270", "hv105", "hv104", "hv005",
+  "hv213", "hv214", "hv215", "hv206", "hv201", "hv205", "hv207",
+  "hml32", "hml35", "hml32a", "hml32b", "hml32c", "hml32d",
+  "hml10", "hv227", "hml12"
+)
+
+raw_df <- read_dta("../KEPR81FL.DTA")
+scoped_df <- raw_df %>% select(all_of(target_vars))
+
+apply_metadata <- function(data) {
+    decoded <- data
+    for (col in names(decoded)) { decoded[[col]] <- as_factor(decoded[[col]]) }
+    return(decoded)
+}
+
+decoded_df <- apply_metadata(scoped_df)
+
+final_df <- decoded_df %>%
+    filter(!is.na(hml32) & hml32 != "sample not found in lab database") %>%
+    mutate(
+        Weight = as.numeric(hv005) / 1000000,
+        Malaria_Pos = case_when(
+            if_any(any_of(c("hml32", "hml32a", "hml32b", "hml32c", "hml32d")),
+                ~ str_detect(as.character(.), regex("Positive|Yes|1", ignore_case = TRUE))) ~ 1,
+            TRUE ~ 0),
+        Slept_ITN = case_when(
+            str_detect(as.character(hml12), regex("treated \\(ITN\\)", ignore_case = TRUE)) ~ 1,
+            str_detect(as.character(hml12), regex("Did not sleep under a net|Only untreated nets", ignore_case = TRUE)) ~ 0,
+            TRUE ~ NA_real_),
+        Has_Net = case_when(
+            str_detect(as.character(hv227), regex("Yes", ignore_case = TRUE)) ~ 1,
+            str_detect(as.character(hv227), regex("No", ignore_case = TRUE)) ~ 0,
+            TRUE ~ NA_real_)
+    )
+```
+
+------------------------------------------------------------------------
+
+# Results
+
+## National Malaria Prevalence
+
+The national weighted malaria prevalence by microscopy was **5.6%** across 10,631 individuals with valid laboratory results.
+
+## Geographic Distribution
+
+The heatmap analysis (Figure 1) reveals extreme heterogeneity within and across endemicity zones:
+
+```{r fig_heatmap, echo=FALSE, fig.cap="Figure 1: Weighted malaria prevalence (%) by county and endemicity zone. Lake Endemic zone shown. Cells with <25 unweighted observations suppressed.", warning=FALSE, message=FALSE}
+hm_data <- final_df %>%
+    group_by(County = shcounty, Zone = shzone) %>%
+    summarise(
+        Prev = weighted.mean(Malaria_Pos, Weight, na.rm = TRUE) * 100,
+        n_unweighted = n(),
+        .groups = "drop"
+    ) %>%
+    mutate(Prev = ifelse(n_unweighted < 25, NA_real_, Prev))
+
+hm_data %>% filter(Zone == 'lake endemic') %>%
+  ggplot(aes(x = Zone, y = County, fill = Prev)) +
+      geom_tile() +
+      geom_text(aes(label = ifelse(is.na(Prev), "—", paste0(round(Prev, 1), "%"))),
+                color = "white", size = 3) +
+      scale_fill_viridis_c(option = "magma", direction = -1, na.value = "grey50") +
+      labs(fill = "Prevalence (%)", x = NULL, y = NULL,
+           caption = "Source: MIS 2020. Weights applied. Cells with n<25 suppressed.") +
+      theme_minimal()
+```
+
+While Busia (38.8%) and Bungoma (29.1%) confirm expected high-transmission patterns, **Homa Bay (3.7%)** represents a striking anomaly despite being in the same Lake Endemic zone.
+
+Counties in the **Highland**, **Central**, and **Nairobi** zones recorded **0% prevalence**. This reflects: (1) genuinely low transmission in highland/urban areas, (2) the cluster-sampling design where no positive cases were found in sampled households, and (3) exclusive use of microscopy (gold standard) which has higher specificity than RDT. Confidence intervals (not computed here due to the complex survey design) would likely span above zero for some of these counties.
+
+## ITN Coverage and the Access–Use Gap
+
+**National ITN usage (total population):** 31.2%
+
+### Effectiveness by Ownership Status (Lake Endemic Zone)
+ 
+```{r fig_itn_effect, echo=FALSE, fig.cap="Figure 2: Malaria positivity (%) by ITN ownership and usage status, Lake Endemic zone.", warning=FALSE, message=FALSE}
+eff_data <- final_df %>%
+    filter(shzone == 'lake endemic') %>%
+    group_by(Slept_ITN, Has_Net) %>%
+    summarise(
+        Positivity = weighted.mean(Malaria_Pos, Weight, na.rm = TRUE) * 100,
+        n = n(),
+        .groups = "drop"
+    ) %>%
+    filter(n >= 25) %>%
+    mutate(Status = ifelse(Slept_ITN == 1, "Used ITN", "Did not use ITN"))
+
+ggplot(eff_data, aes(x = factor(Has_Net, labels = c("No Net", "Has Net")),
+                      y = Positivity, fill = Status)) +
+  geom_col(position = "dodge", width = 0.7) +
+  geom_text(aes(label = paste0(round(Positivity, 1), "%")),
+            position = position_dodge(0.7), vjust = -0.5, size = 3) +
+  labs(x = "Net Ownership", y = "Malaria Positivity (%)",
+       caption = "Source: MIS 2020. Lake Endemic zone. Weighted estimates.") +
+  theme_minimal() +
+  scale_fill_brewer(palette = "Set2")
+```
+
+Owning but not using nets (20.3%) conferred virtually **no protection** compared to non-owners (21.2%), confirming that ownership alone does not reduce risk. Active ITN use lowered positivity to 17.7% — a modest 3.5 percentage-point reduction that suggests additional transmission factors (insecticide resistance, outdoor biting, net degradation) are at play in the Lake Endemic zone.
+
+### Ownership vs. Usage Gap
+
+Among households that **own** a mosquito net:
+
+```{r fig_net_gap, echo=FALSE, fig.cap="Figure 3: ITN usage among households owning at least one net.", warning=FALSE, message=FALSE}
+gap_data <- final_df %>%
+    filter(Has_Net == 1, !is.na(Slept_ITN)) %>%
+    group_by(Slept_ITN) %>%
+    summarise(weighted_n = sum(Weight, na.rm = TRUE), .groups = "drop") %>%
+    mutate(Usage = ifelse(Slept_ITN == 1, "Used ITN", "Did Not Use ITN"),
+           pct = weighted_n / sum(weighted_n) * 100)
+
+ggplot(gap_data, aes(x = "", y = pct, fill = Usage)) +
+  geom_bar(stat = "identity", width = 1) +
+  coord_polar("y", start = 0) +
+  geom_text(aes(label = paste0(round(pct, 1), "%")), 
+            position = position_stack(vjust = 0.5), size = 5) +
+  labs(x = NULL, y = NULL) +
+  theme_void() +
+  scale_fill_brewer(palette = "Set1")
+```
+
+This 43% non-use rate among net owners represents a **behavioural gap** — a failure of utilisation rather than access — requiring social and behaviour change communication (SBCC) rather than additional net distribution.
+
+## Socio-Economic Determinants
+
+### Wealth Gradient
+
+```{r fig_wealth, echo=FALSE, fig.cap="Figure 4: Weighted malaria prevalence by DHS wealth quintile.", warning=FALSE, message=FALSE}
+summ <- final_df %>%
+    group_by(Wealth = hv270) %>%
+    summarise(Prev = weighted.mean(Malaria_Pos, Weight, na.rm = TRUE) * 100,
+              n = n(), .groups = "drop") %>%
+    filter(n >= 25)
+
+ggplot(summ, aes(x = Wealth, y = Prev, fill = Wealth)) +
+    geom_col() +
+    geom_text(aes(label = paste0(round(Prev, 1), "%")), vjust = -0.5, size = 3) +
+    labs(y = "Prevalence (%)", x = "Wealth Quintile",
+         caption = "Source: MIS 2020. Weighted estimates.") +
+    theme_minimal() +
+    theme(legend.position = "none") +
+    scale_fill_viridis_d(option = "mako")
+```
+
+A clear poverty gradient is observed: prevalence in the **Poorest** quintile is 14 times higher than in the **Richest**, highlighting malaria as a disease of poverty and the protective effect of improved housing and living conditions.
+
+### Urban–Rural Disparity
+
+```{r fig_urban_rural, echo=FALSE, fig.cap="Figure 5: Malaria prevalence by residence type.", warning=FALSE, message=FALSE}
+summ_ur <- final_df %>%
+    group_by(Residence = hv025) %>%
+    summarise(Prev = weighted.mean(Malaria_Pos, Weight, na.rm = TRUE) * 100,
+              n = n(), .groups = "drop")
+
+ggplot(summ_ur, aes(x = Residence, y = Prev, fill = Residence)) +
+    geom_col(width = 0.5) +
+    geom_text(aes(label = paste0(round(Prev, 1), "%")), vjust = -0.5) +
+    labs(y = "Prevalence (%)", x = NULL,
+         caption = "Source: MIS 2020. Weighted estimates.") +
+    theme_minimal() +
+    theme(legend.position = "none") +
+    scale_fill_brewer(palette = "Paired")
+```
+
+Rural populations face nearly four times the malaria burden, reflecting greater mosquito breeding-site density, lower health-facility access, and inferior housing quality in rural areas.
+
+## Parasite Species Distribution
+
+```{r fig_species, echo=FALSE, fig.cap="Figure 6: Distribution of Plasmodium species among microscopy-positive cases.", warning=FALSE, message=FALSE}
+long_spec <- final_df %>%
+    select(Weight, hml32a, hml32b, hml32c, hml32d) %>%
+    pivot_longer(cols = starts_with("hml32"), names_to = "Species", values_to = "Result") %>%
+    filter(str_detect(Result, regex("Yes|1|Positive", ignore_case = TRUE)))
+
+summary_spec <- long_spec %>%
+    group_by(Species) %>%
+    summarise(Count = sum(Weight, na.rm = TRUE), .groups = "drop") %>%
+    mutate(
+        Label = case_when(
+            str_detect(Species, "hml32a") ~ "P. falciparum",
+            str_detect(Species, "hml32b") ~ "P. malariae",
+            str_detect(Species, "hml32c") ~ "P. ovale",
+            str_detect(Species, "hml32d") ~ "P. vivax"),
+        Pct = Count / sum(Count) * 100)
+
+ggplot(summary_spec, aes(x = reorder(Label, Pct), y = Pct)) +
+    geom_col(fill = "steelblue") +
+    geom_text(aes(label = paste0(round(Pct, 1), "%")), hjust = -0.1) +
+    coord_flip() +
+    labs(x = NULL, y = "Proportion (%)") +
+    theme_minimal()
+```
+
+*P. falciparum* dominates overwhelmingly, consistent with Kenya's monospecific transmission pattern. The presence of minor species (*P. malariae*, *P. ovale*) underscores the importance of microscopy over RDT for species-level surveillance.
+
+## Diagnostic Concordance: Microscopy vs. RDT
+
+```{r fig_concordance, echo=FALSE, fig.cap="Figure 7: Diagnostic agreement matrix — Microscopy (gold standard) vs. RDT. High off-diagonal counts indicate discordance.", warning=FALSE, message=FALSE}
+agree_data <- final_df %>%
+    count(Microscopy = as.character(hml32), RDT = as.character(hml35)) %>%
+    filter(!is.na(Microscopy), !is.na(RDT))
+
+ggplot(agree_data, aes(x = Microscopy, y = RDT, fill = n)) +
+    geom_tile() +
+    geom_text(aes(label = format(n, big.mark = ",")), color = "white", size = 3.5) +
+    scale_fill_viridis_c(option = "plasma") +
+    labs(fill = "Count", x = "Microscopy Result", y = "RDT Result",
+         caption = "Source: MIS 2020. Unweighted counts.") +
+    theme_minimal()
+```
+
+This concordance pattern supports continued use of microscopy as the confirmatory standard while acknowledging RDT's field utility for rapid screening:
+-   **True Negatives/Positives:** Strong agreement overall.
+-   **False Positives** (RDT+, Microscopy−): Present due to persistent HRP2 antigen.
+-   **False Negatives** (RDT−, Microscopy+): Clinically significant low-density infections missed by RDT.
+
+## Machine Learning: Household Predictors of Infection
+
+The logistic regression model (Analysis of Deviance, Chi-squared test) ranked household-level predictors of malaria positivity:
+
+```{r fig_ml_importance, echo=FALSE, fig.cap="Figure 8: Household-level predictors of malaria infection ranked by deviance explained (sequential ANOVA).", warning=FALSE, message=FALSE}
+ml_features <- c("hv213", "hv214", "hv215", "hv206", "hv201", "hv205", "hv207")
+ml_features <- intersect(ml_features, names(final_df))
+
+ml_df <- final_df %>%
+  select(Malaria_Pos, all_of(ml_features)) %>%
+  drop_na() %>%
+  apply_metadata()
+
+var_labels <- sapply(ml_df, function(x) attr(x, "label"))
+var_labels$Malaria_Pos <- 'Malaria_Pos'
+names(ml_df) <- var_labels
+
+ml_model <- suppressWarnings(glm(Malaria_Pos ~ ., data = ml_df, family = "binomial"))
+anova_res <- anova(ml_model, test = "Chisq")
+
+feature_df <- data.frame(
+  Feature = rownames(anova_res)[-1],
+  Deviance = anova_res$Deviance[-1],
+  P_value = anova_res$`Pr(>Chi)`[-1],
+  stringsAsFactors = FALSE
+)
+
+feature_importance <- tibble(feature_df) %>%
+  filter(!is.na(Deviance)) %>%
+  arrange(desc(Deviance)) %>%
+  mutate(Feature = reorder(Feature, Deviance),
+         Significance = ifelse(P_value < 0.001, "***",
+                        ifelse(P_value < 0.01, "**",
+                        ifelse(P_value < 0.05, "*", "ns"))))
+
+ggplot(feature_importance, aes(x = Feature, y = Deviance)) +
+    geom_col(fill = "#2C3E50") +
+    geom_text(aes(label = Significance), hjust = -0.3, size = 4) +
+    coord_flip() +
+    labs(x = NULL, y = "Deviance Explained",
+         caption = "*** p<0.001, ** p<0.01, * p<0.05. Source: Logistic regression on MIS 2020.") +
+    theme_minimal()
+```
+
+Structural housing characteristics (roof, floor, wall) and sanitation infrastructure (water, toilet) dominate the model, explaining substantially more deviance than asset indicators (electricity, radio). This suggests that **housing improvement may serve as an effective non-medical malaria intervention**.
+
+------------------------------------------------------------------------
+
+# Discussion
+
+## Principal Findings
+
+This study demonstrates that an interactive, survey-weighted dashboard can reveal sub-national malaria heterogeneity obscured in aggregate MIS reporting. Three principal findings emerge:
+
+### 1. Extreme Geographic Heterogeneity Within Endemic Zones
+
+While Busia (38.8%) and Bungoma (29.1%) confirm expected high-transmission patterns in the Lake Endemic zone, **Homa Bay (3.7%)** represents a striking anomaly. Despite geographic proximity and similar ecological conditions, Homa Bay's prevalence is an order of magnitude lower. This aligns with reports of intensive **Indoor Residual Spraying (IRS)** campaigns and early malaria vaccine pilots in Homa Bay County [@dnmp2020], suggesting that aggressive, localised interventions can disrupt transmission even within a broadly endemic zone.
+
+An additional observation complicates the standard poverty gradient: in Homa Bay, the wealthiest quintile shows *higher* prevalence (6.9%) than the poorest (3.2%). This reversal may reflect **travel-related malaria** — wealthier individuals traveling to higher-risk areas — or differential outdoor exposure patterns.
+
+### 2. The ITN Access–Use Gap Is Behavioural, Not Supply-Driven
+
+Among net-owning households, 43% of individuals did not sleep under an ITN. In the Lake Endemic zone, net ownership without usage conferred virtually no protection (20.3% vs. 21.2% positivity). Only active use reduced positivity to 17.7%. This 3.5 percentage-point reduction, while modest, is consistent with literature suggesting ITN effectiveness is attenuated in areas with high outdoor biting or pyrethroid resistance [@koenker2018].
+
+### 3. The ITN "Protection Ceiling"
+
+Busia presents a paradox: despite 62.5% ITN usage (among the highest nationally), it retains the highest prevalence (38.8%). This pattern suggests a **protection ceiling** where behavioural interventions are insufficient against overwhelming vector pressure, marking the transition from a behavioural problem to a biological one (insecticide resistance, outdoor-biting mosquitoes). Programmes in such settings must shift toward next-generation vector control.
+
+### 4. Housing Quality Dominates Socio-Economic Risk
+
+The logistic regression confirms that structural housing characteristics explain more deviance in malaria positivity than utilities or asset indicators. This supports the growing evidence base for **housing improvement as a complementary vector control strategy** [@tusting2017].
+
+## Comparison with Literature
+
+Our national prevalence estimate of 5.6% is consistent with the published MIS 2020 report [@dnmp2020], validating the data processing pipeline. The wealth gradient aligns with prior Kenyan studies [@snow2015]. The species distribution (>95% *P. falciparum*) confirms Kenya's monospecific transmission pattern.
+
+------------------------------------------------------------------------
+
+# Limitations and Uncertainty
+
+1.  **Cross-sectional design:** The MIS captures a single time point (February–July 2020). Seasonal variation is not captured and causal inference is limited.
+2.  **Survey weights without design-based variance:** While DHS sampling weights are applied for point estimates, formal confidence intervals require accounting for stratification and clustering (e.g., via the `survey` package). Presented estimates are weighted point estimates; formal uncertainty quantification is a priority for future work.
+3.  **Small-cell instability:** Some county-level estimates rest on small unweighted denominators. Cells with n < 25 are suppressed, but remaining estimates in low-population counties carry wide implicit uncertainty.
+4.  **Temporal relevance:** The 2020 MIS coincided with the early COVID-19 period, which may have affected health-seeking behaviour and survey participation.
+5.  **Self-reported ITN use:** Net usage is based on self-report and subject to social desirability bias.
+6.  **Ecological fallacy:** County-level associations may not reflect individual-level causation.
+7.  **Model limitations:** The logistic regression does not account for complex survey design or spatial autocorrelation. Feature importance rankings are associative, not causal.
+
+------------------------------------------------------------------------
+
+# Conclusion
+
+The Malaria Insights Hub successfully operationalises the MIS 2020 micro-data into a transparent, reproducible, and interactive surveillance tool. Key policy implications include:
+
+1.  **Targeted IRS expansion:** The Homa Bay success story supports scaling IRS to neighbouring high-burden counties (Busia, Siaya, Bungoma).
+2.  **Behavioural communication for ITN use:** The 43% non-use rate among net owners is an addressable gap requiring SBCC campaigns.
+3.  **Housing improvement as intervention:** The dominance of structural housing features in the risk model supports integration of housing improvement into malaria control strategies.
+4.  **Next-generation vector control:** Counties like Busia, where ITN usage is high but prevalence remains extreme, require complementary interventions beyond nets.
+
+Future work should integrate the 2023/2024 MIS data to enable temporal trend analysis, implement formal survey-design-based confidence intervals, and explore spatial regression models to account for geographic clustering.
+
+------------------------------------------------------------------------
+
+# References {.unnumbered}
+
+::: {#refs}
+:::
+
+\newpage
+
+# Appendix A: Data Use Authorization {.unnumbered}
+
+The DHS Program Authorization Letter (Ref: SPA_225470) is held on file. Key terms:
+
+-   Data may be used for the stated research purpose only.
+-   Raw micro-data may not be redistributed, published, or shared with third parties.
+-   All published outputs must use aggregated/anonymised indicators.
+-   The dataset must be securely stored and deleted upon project completion.
+
+**Required citation:** Division of National Malaria Programme (DNMP) [Kenya], Kenya National Bureau of Statistics (KNBS), and ICF. 2020. *Kenya Malaria Indicator Survey 2020*. Rockville, Maryland, USA: DNMP, KNBS, and ICF.
+
+# Appendix B: Repository Structure and Reproducibility {.unnumbered}
+
+```
+MalariaProject/
+├── app.R                    # Shiny UI + Server (modular architecture)
+├── fct_parser.R             # Metadata/label parser module
+├── Malaria_Report.qmd       # Technical report (with code)
+├── Malaria_Report_Publication.qmd  # This publication report
+├── README.md                # Project overview, setup, licence
+├── DATA_DICTIONARY.md       # Variable definitions and coding
+├── LICENCE                  # CC-BY-NC 4.0 (code); data not redistributable
+├── renv.lock                # Reproducible R environment
+├── data/                    # NOT in repository — see Data Governance
+├── docs/
+│   ├── deployment_guide.md
+│   └── AuthLetter_SPA_225470.pdf
+└── tests/
+    └── test_indicators.R    # Automated validation tests
+```
+
+**Technical stack:** R (≥4.3.0), Shiny, bslib (Bootstrap 5), dplyr, tidyr, stringr, haven, ggplot2, plotly, base R `glm()`.
+
+**Input validation:** Server-side filtering with dynamically generated choices; `validate(need(...))` wrappers for user-safe error handling; `na.rm = TRUE` on all aggregations; small-cell suppression (n < 25).
+
+**Deployment:** Local via `shiny::runApp()` or cloud via `rsconnect::deployApp()` to shinyapps.io. Full instructions in `docs/deployment_guide.md`.
+
+# Appendix C: Data Dictionary {.unnumbered}
+
+**Source variables:**
+
+| Variable | Label | Type |
+|---|---|---|
+| hv005 | Sample weight (divide by 10⁶) | Integer |
+| hv024 | Region | Categorical (8 provinces) |
+| hv025 | Residence type | Urban / Rural |
+| hv104 | Sex | Male / Female |
+| hv105 | Age | Integer (0–98) |
+| hv270 | Wealth index quintile | Ordinal (Poorest → Richest) |
+| shcounty | County | Categorical (47 counties) |
+| shzone | Endemicity zone | Categorical (5 zones) |
+| hml32 | Microscopy result | Negative / Positive |
+| hml32a–d | Species-specific microscopy | Negative / Positive |
+| hml35 | RDT result | Negative / Positive |
+| hv227 | Household owns net | Yes / No |
+| hml10 | Slept under ITN | Yes / No |
+| hml12 | Type of net slept under | Categorical |
+| hv213–hv215 | Floor / Wall / Roof material | Categorical |
+| hv201, hv205 | Water source / Toilet type | Categorical |
+| hv206, hv207 | Electricity / Radio | Yes / No |
+
+**Derived variables:**
+
+| Variable | Definition | Values |
+|---|---|---|
+| Weight | hv005 / 1,000,000 | Continuous |
+| Malaria_Pos | Composite positivity (hml32 + hml32a–d) | 0, 1 |
+| Slept_ITN | Slept under ITN (from hml12) | 0, 1, NA |
+| Has_Net | Household owns net (from hv227) | 0, 1, NA |

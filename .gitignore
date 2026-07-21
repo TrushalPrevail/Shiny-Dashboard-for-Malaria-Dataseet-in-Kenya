@@ -1,0 +1,37 @@
+# Data files (these MUST NOT be committed as per DHS data use agreement)
+*.DTA
+*.dta
+*.csv
+*.rds
+data/
+
+# R environment and history
+.Rhistory
+.RData
+.Ruserdata
+.Rproj.user/
+.Renviron
+.Rprofile
+
+# Quarto and rendering artifacts
+/.quarto/
+*_cache/
+*_files/
+*.html
+*.pdf
+*.tex
+*.out
+*.log
+*.aux
+*.fls
+*.fdb_latexmk
+*.synctex.gz
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
